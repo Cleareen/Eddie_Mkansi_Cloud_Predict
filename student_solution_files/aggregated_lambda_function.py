@@ -22,19 +22,26 @@ import numpy as np # Array manipulation
 # <<< You will need to add additional libraries to complete this script >>> 
 
 # ** Insert key phrases function **
-# --- Insert your code here ---
-
-# -----------------------------
+def extract_key_phrases(text):
+    comprehend = boto3.client(service_name='comprehend')
+    response = comprehend.detect_key_phrases(Text=text, LanguageCode='en')
+    return response
 
 # ** Insert sentiment extraction function **
-# --- Insert your code here ---
- 
-# -----------------------------
+def extract_sentiment(text):
+    comprehend = boto3.client(service_name='comprehend')
+    response = comprehend.detect_sentiment(Text=text, LanguageCode='en')
+    return response
 
 # ** Insert email responses function **
-# --- Insert your code here ---
- 
-# -----------------------------
+def generate_email_response(sentiment, key_phrases):
+    if sentiment == 'POSITIVE':
+        email_text = "Thank you for your message. We appreciate your interest and will get back to you shortly."
+    elif sentiment == 'NEGATIVE':
+        email_text = "We're sorry to hear that you're not satisfied with our service. We'll do our best to address your concerns."
+    else:
+        email_text = "We've received your message and will respond as soon as possible."
+    return email_text
 
 # Lambda function orchestrating the entire predict logic
 def lambda_handler(event, context):
@@ -43,88 +50,60 @@ def lambda_handler(event, context):
     body_enc = event['body']
     dec_dict = json.loads(base64.b64decode(body_enc))
     
-
-    # ** Insert code to write to dynamodb **
-    # <<< Ensure that the DynamoDB write response object is saved 
-    #    as the variable `db_response` >>> 
-    # --- Insert your code here ---
-
-
-    # Do not change the name of this variable
-    db_response = None
+    # ** Insert code to write to DynamoDB **
+    dynamodb = boto3.resource('dynamodb')
+    table = dynamodb.Table('Eddie_Mkansi_Portfolio_Project')
+    db_response = table.put_item(Item=dec_dict)
     # -----------------------------
     
-
-    # --- Amazon Comprehend ---
-    comprehend = boto3.client(service_name='comprehend')
+    # ** Use the `extract_sentiment` and `extract_key_phrases` functions to analyze the message **
+    enquiry_text = dec_dict['message']
+    sentiment_response = extract_sentiment(enquiry_text)
+    key_phrases_response = extract_key_phrases(enquiry_text)
     
-    # --- Insert your code here ---
-    enquiry_text = None # <--- Insert code to place the website message into this variable
-    # -----------------------------
+    # Extract sentiment
+    sentiment = sentiment_response['Sentiment']
     
-    # --- Insert your code here ---
-    sentiment = None # <---Insert code to get the sentiment with AWS comprehend
-    # -----------------------------
+    # Extract key phrases
+    key_phrases = [phrase['Text'] for phrase in key_phrases_response['KeyPhrases']]
     
-    # --- Insert your code here ---
-    key_phrases = None # <--- Insert code to get the key phrases with AWS comprehend
-    # -----------------------------
+    # ** Use the `generate_email_response` function to generate the email response **
+    email_text = generate_email_response(sentiment, key_phrases)
     
-    # Get list of phrases in numpy array
-    phrase = []
-    for i in range(0, len(key_phrases['KeyPhrases'])-1):
-        phrase = np.append(phrase, key_phrases['KeyPhrases'][i]['Text'])
-
-
-    # ** Use the `email_response` function to generate the text for your email response **
-    # <<< Ensure that the response text is stored in the variable `email_text` >>> 
-    # --- Insert your code here ---
-    # Do not change the name of this variable
-    email_text = None 
-
+    # ** Perform SES functionality to send an email **
+    ses_client = boto3.client('ses')
+    response = ses_client.send_email(
+        Destination={
+            'ToAddresses': [dec_dict['email']]
+        },
+        Message={
+            'Body': {
+                'Text': {
+                    'Charset': 'UTF-8',
+                    'Data': email_text,
+                },
+            },
+            'Subject': {
+                'Charset': 'UTF-8',
+                'Data': 'Response to your inquiry',
+            },
+        },
+        Source='cleareen@gmail.com'
+    )
+    ses_response = response['ResponseMetadata']
     
-    # -----------------------------
-            
-
-    # ** SES Functionality **
-
-    # Insert code to send an email, using AWS SES, with the above defined 
-    # `email_text` variable as it's body.
-    # <<< Ensure that the SES service response is stored in the variable `ses_response` >>> 
-    # --- Insert your code here ---
-
-    # Do not change the name of this variable
-    ses_response = None
-    
-    # ...
-
-    # Do not modify the email subject line
-    SUBJECT = f"Data Science Portfolio Project Website - Hello {dec_dict['name']}"
-
-    # -----------------------------
-
-
-    # ** Create a response object to inform the website that the 
-    #    workflow executed successfully. Note that this object is 
-    #    used during predict marking and should not be modified.**
-    # --- DO NOT MODIFY THIS CODE ---
+    # ** Create a response object to inform the website that the workflow executed successfully.**
     lambda_response = {
         'statusCode': 200,
         'body': json.dumps({
-        'Name': dec_dict['name'],
-        'Email': dec_dict['email'],
-        'Cell': dec_dict['phone'], 
-        'Message': dec_dict['message'],
-        'DB_response': db_response,
-        'SES_response': ses_response,
-        'Email_message': email_text
+            'Name': dec_dict['name'],
+            'Email': dec_dict['email'],
+            'Cell': dec_dict['phone'], 
+            'Message': dec_dict['message'],
+            'DB_response': db_response,
+            'SES_response': ses_response,
+            'Email_message': email_text
         })
     }
-    # -----------------------------
     
-    return lambda_response   
-    
-
-
-
-
+    return lambda_response
