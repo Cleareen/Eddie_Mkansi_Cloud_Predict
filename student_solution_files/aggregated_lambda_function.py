@@ -133,7 +133,61 @@ def lambda_handler(event, context):
     # ** Insert code to write to dynamodb **
     # <<< Ensure that the DynamoDB write response object is saved 
     #    as the variable `db_response` >>> 
+
+def lambda_handler(event, context):
+    
+    # Perform JSON data decoding 
+    body_enc = event['body']
+    dec_dict = json.loads(base64.b64decode(body_enc))
+    
+    
+    # --- Write to dynamodb ---
+    
+    # ** Create a variable that can take a random value between 1 and 1 000 000 000. 
+    # This variable will be used as our key value i.e the ResponsesID and should be of type integer.
+    # It is important to note that the ResponseID i.e. the rid variable, should take
+    # on a unique value to prevent errors when writing to DynamoDB. **
+    
     # --- Insert your code here ---
+    rid = None # <--- Replace this value with your code.
+    # -----------------------------
+    
+    # ** Instantiate the DynamoDB service with the help of the boto3 library **
+    
+    # --- Insert your code here ---
+    dynamodb = None # <--- Replace this value with your code.
+    # -----------------------------
+    
+    # Instantiate the table. Remember pass the name of the DynamoDB table created in step 4
+    table = dynamodb.Table('# Insert the name of your generated DynamoDB table here')
+    
+    # ** Write the responses to the table using the put_item method. **
+
+    # Complete the below code so that the appropriate 
+    # incoming data is sent to the matching column in your DynamoDB table
+    # --- Insert your code here ---
+    db_response = table.put_item(Item={'ResponsesID': None, # <--- Insert the correct variable
+                        'Name': None, # <--- Insert the correct variable
+                        'Email': None, # <--- Insert the correct variable
+                        'Cell': None, # <--- Insert the correct variable
+                        'Message': None # <--- Insert the correct variable
+    })
+    # -----------------------------
+
+    # ** Create a response object to inform the website 
+    #    that the workflow executed successfully. **
+    lambda_response = {
+        'statusCode': 200,
+        'body': json.dumps({
+        'Name': dec_dict['name'],
+        'Email': dec_dict['email'],
+        'Cell': dec_dict['phone'], 
+        'Message': dec_dict['message'],
+        'DB_response': db_response
+        })
+    }
+    
+    return lambda_response
 
 
     # Do not change the name of this variable
@@ -177,7 +231,7 @@ def lambda_handler(event, context):
     # Insert code to send an email, using AWS SES, with the above defined 
     # `email_text` variable as it's body.
     # <<< Ensure that the SES service response is stored in the variable `ses_response` >>> 
-    # --- Insert your code here ---
+   
 
     # Do not change the name of this variable
     ses_response = None
