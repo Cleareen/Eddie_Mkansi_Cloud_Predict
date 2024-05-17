@@ -6,7 +6,6 @@ import numpy as np # Array manipulation
 # <<< You will need to add additional libraries to complete this script >>> 
 
 # ** Insert key phrases function **
-# --- Insert your code here ---
 def key_phrase_finder(list_of_important_phrases, list_of_extracted_phrases):
 
     listing = []
@@ -35,7 +34,6 @@ def key_phrase_finder(list_of_important_phrases, list_of_extracted_phrases):
 # -----------------------------
 
 # ** Insert sentiment extraction function **
-# --- Insert your code here ---
 def find_max_sentiment(Comprehend_Sentiment_Output):
     
     sentiment_score = 0
