@@ -117,7 +117,7 @@ def email_response(name, critical_phrase_list, list_of_extracted_phrases, AWS_Co
     Text: The intelligently populated email response based on the contents of the sender's message.
     """
     # Function Constants
-    SENDER_NAME = 'Place your name here'
+    SENDER_NAME = 'Eddie kansi'
 
     # --- Check for the sentiment of the message and find dominant sentiment score ---
     Sentiment_finder = find_max_sentiment(AWS_Comprehend_Sentiment_Dump)
@@ -245,11 +245,6 @@ def lambda_handler(event, context):
     body_enc = event['body']
     dec_dict = json.loads(base64.b64decode(body_enc))
 
-    # ** Insert code to write to dynamodb **
-    # <<< Ensure that the DynamoDB write response object is saved
-    #    as the variable `db_response` >>>
-    # --- Insert your code here ---
-
     # DynamoDB client initialization
     dynamodb = boto3.resource('dynamodb')
     table = dynamodb.Table('Eddie_Mkansi-portfolio-data-table')
@@ -314,13 +309,14 @@ def lambda_handler(event, context):
 
     # ** SES Functionality **
 
-    # Insert code to send an email, using AWS SES, with the above defined
-    # `email_text` variable as it's body.
-    # <<< Ensure that the SES service response is stored in the variable `ses_response` >>>
-    # --- Insert your code here ---
-
     # Do not change the name of this variable
-    ses_response = None
+    ses_response = boto3.client('ses', region_name='us-east-1')
+    SENDER_EMAIL = 'cleareen@gmail.com'
+    RECIPIENT_EMAIL = dec_dict['email']
+    SUBJECT = f"Data Science Portfolio Project Website - Hello {dec_dict['name']}"
+    BODY_TEXT = email_text
+    CHARSET = "UTF-8"
+
 
     # ...
 
