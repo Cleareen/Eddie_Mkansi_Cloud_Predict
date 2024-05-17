@@ -56,7 +56,69 @@ def find_max_sentiment(Comprehend_Sentiment_Output):
 # -----------------------------
 
 # ** Insert email responses function **
-# --- Insert your code here ---
+ if overwhelming_sentiment == 'POSITIVE':
+        if  ((Matched_Phrases_Checker_CV == True) & \
+            (Matched_Phrases_Checker_Article == True) & \
+            (Matched_Phrases_Checker_Project == True)):
+            
+            mytuple = (Greetings_text, CV_text, Article_Text, Project_Text, Farewell_Text)
+            Text = "\n \n".join(mytuple)
+            
+        elif ((Matched_Phrases_Checker_CV == True) & \
+             (Matched_Phrases_Checker_Article == False) & \
+             (Matched_Phrases_Checker_Project == True)):
+            
+            mytuple = (Greetings_text, CV_text, Project_Text, Farewell_Text)
+            Text = "\n \n".join(mytuple)
+            
+        elif ((Matched_Phrases_Checker_CV == True) & \
+             (Matched_Phrases_Checker_Article == False) & \
+             (Matched_Phrases_Checker_Project == False)):
+            
+            mytuple = (Greetings_text, CV_text, Farewell_Text)
+            Text = "\n \n".join(mytuple)
+            
+        elif ((Matched_Phrases_Checker_CV == False) & \
+             (Matched_Phrases_Checker_Article == True) & \
+             (Matched_Phrases_Checker_Project == False)):
+            
+            mytuple = (Greetings_text, Article_Text, Farewell_Text)
+            Text = "\n \n".join(mytuple)       
+            
+        elif ((Matched_Phrases_Checker_CV == False) & \
+             (Matched_Phrases_Checker_Article == False) & \
+             (Matched_Phrases_Checker_Project == False)):
+
+            mytuple = (Greetings_text, Farewell_Text)
+            Text = "\n \n".join(mytuple)   
+            
+        elif ((Matched_Phrases_Checker_CV == False) & \
+             (Matched_Phrases_Checker_Article == False) & \
+             (Matched_Phrases_Checker_Project == True)):
+            
+            mytuple = (Greetings_text, Project_Text ,Farewell_Text)
+            Text = "\n \n".join(mytuple)   
+            
+        elif  ((Matched_Phrases_Checker_CV == True) & \
+              (Matched_Phrases_Checker_Article == True) & \
+              (Matched_Phrases_Checker_Project == False)):
+            
+            mytuple = (Greetings_text, CV_text, Article_Text, Farewell_Text)
+            Text = "\n \n".join(mytuple)
+            
+        else:
+            mytuple = (Greetings_text, Project_Text, Article_Text, Farewell_Text)
+            Text = "\n \n".join(mytuple)
+            
+    elif overwhelming_sentiment == 'NEGATIVE':
+            mytuple = (Greetings_text, Negative_Text)
+            Text = "\n \n".join(mytuple)
+            
+    else:
+            mytuple = (Greetings_text, Neutral_Text)
+            Text = "\n \n".join(mytuple)
+    
+    return Text
  
 # -----------------------------
 
